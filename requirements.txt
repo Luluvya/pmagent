@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+httpx
+python-multipart
+pypdf
+langgraph
+langchain-core
+pydantic
