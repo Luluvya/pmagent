@@ -6,3 +6,4 @@ pypdf
 langgraph
 langchain-core
 pydantic
+chromadb
