@@ -148,9 +148,9 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
 
 <section class="hero">
   <div>
-    <div class="hero-tag">✦ Multi-Agent · RAG · DeepSeek-V3</div>
+    <div class="hero-tag">✦ Multi-Agent · RAG · Multimodal</div>
     <h1><span>AI产品经理</span><br>面试备考助手</h1>
-    <p>基于 LangGraph Multi-Agent 架构，结合 RAG 知识库，覆盖字节/阿里/腾讯/美团/京东等大厂。上传 JD 和简历，从 JD 分析到模拟面试一站式备考。</p>
+    <p>基于 LangGraph Multi-Agent 架构，结合 RAG 知识库与多模态识别，覆盖字节/阿里/腾讯/美团/京东等大厂。支持图片、PDF、文本多格式上传，一站式面试备考。</p>
     <div class="hero-btns">
       <a class="btn-primary" href="#agent-section">立即备考 →</a>
       <a class="btn-secondary" href="#features">功能介绍 ↓</a>
@@ -176,9 +176,9 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
 
 <div class="stats">
   <div class="stat"><div class="sv">6 Agents</div><div class="sl">专业决策节点</div></div>
-  <div class="stat"><div class="sv">RAG</div><div class="sl">知识库检索增强</div></div>
+  <div class="stat"><div class="sv">多模态</div><div class="sl">图片/PDF/文本解析</div></div>
   <div class="stat"><div class="sv">5大厂</div><div class="sl">字节·阿里·腾讯·美团·京东</div></div>
-  <div class="stat"><div class="sv">DeepSeek</div><div class="sl">大模型驱动</div></div>
+  <div class="stat"><div class="sv">RAG</div><div class="sl">知识库检索增强</div></div>
 </div>
 
 <section class="agent-section" id="agent-section">
@@ -191,8 +191,8 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="upload-panel">
       <div class="upload-panel-title">📄 职位描述 JD</div>
       <div class="upload-btn">
-        上传 PDF / TXT
-        <input type="file" accept=".pdf,.txt" onchange="handleUpload(event,'jd')">
+        上传 PDF / 图片 / TXT
+        <input type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp" onchange="handleUpload(event,'jd')">
       </div>
       <div class="upload-status" id="jd-status">未上传</div>
       <textarea class="upload-textarea" id="jd-text" placeholder="或直接粘贴 JD 文本内容..."></textarea>
@@ -200,8 +200,8 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="upload-panel">
       <div class="upload-panel-title">👤 个人简历</div>
       <div class="upload-btn">
-        上传 PDF / TXT
-        <input type="file" accept=".pdf,.txt" onchange="handleUpload(event,'resume')">
+        上传 PDF / 图片 / TXT
+        <input type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp" onchange="handleUpload(event,'resume')">
       </div>
       <div class="upload-status" id="resume-status">未上传</div>
       <textarea class="upload-textarea" id="resume-text" placeholder="或直接粘贴简历文本内容..."></textarea>
@@ -213,7 +213,7 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
       <div class="chat-avatar">🎯</div>
       <div class="chat-header-info">
         <h3>PMAgent · AI产品经理面试备考助手</h3>
-        <p>LangGraph Multi-Agent · RAG知识库 · 6大专业Agent · DeepSeek-V3</p>
+        <p>LangGraph Multi-Agent · RAG知识库 · 多模态解析 · DeepSeek-V3 · Qwen2-VL</p>
       </div>
       <div class="agent-pill">
         <div class="dot-live"></div>
@@ -234,7 +234,7 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
             📝 <strong>回答点评</strong> · 评分 + STAR法则改进建议<br>
             🧩 <strong>案例拆解</strong> · 产品设计题解析与答题框架<br>
             📅 <strong>备考计划</strong> · 个性化1-2周备考路线<br><br>
-            请先上传 JD 和简历，或直接点击下方快捷按钮开始 ↓
+            支持上传 <strong>PDF、图片（截图）、TXT</strong> 格式的JD和简历 ↓
           </div>
         </div>
       </div>
@@ -266,18 +266,18 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="feat-card"><div class="feat-icon">📊</div><h3>简历匹配诊断</h3><p>评分匹配度、挖掘简历亮点、指出弱项，给出针对该JD的具体简历优化和面试话术建议。</p></div>
     <div class="feat-card"><div class="feat-icon">🎤</div><h3>真实模拟面试</h3><p>模拟大厂面试官追问风格，覆盖自我介绍、产品设计、数据分析、跨团队协作等全维度。</p></div>
     <div class="feat-card"><div class="feat-icon">📝</div><h3>回答专业点评</h3><p>多维度评分，结合 STAR 法则给出重构建议，揭示面试官视角和可能的追问方向。</p></div>
-    <div class="feat-card"><div class="feat-icon">🧩</div><h3>产品案例拆解</h3><p>解析产品设计题、竞品分析题，给出分析框架、深度拆解思路和面试答题注意事项。</p></div>
+    <div class="feat-card"><div class="feat-icon">🖼️</div><h3>多模态文件解析</h3><p>支持上传图片格式的简历和JD截图，由 Qwen2-VL 多模态大模型自动识别提取文字内容。</p></div>
     <div class="feat-card"><div class="feat-icon">📅</div><h3>个性化备考计划</h3><p>结合你的简历和目标JD，制定1-2周每日备考任务，推荐优先练习题和避坑提示。</p></div>
   </div>
 </section>
 
 <footer>
   <div class="footer-left">🎯 PMAgent · AI产品经理面试备考助手</div>
-  <div class="footer-right">LangGraph · ChromaDB · DeepSeek-V3 · FastAPI · 硅基流动</div>
+  <div class="footer-right">LangGraph · ChromaDB · DeepSeek-V3 · Qwen2-VL · FastAPI · 硅基流动</div>
 </footer>
 
 <script>
-const BACKEND_URL = 'https://pmagent-s9xc.onrender.com'; // 替换为你的 Render 后端地址
+const BACKEND_URL = 'https://pmagent-s9xc.onrender.com';
 
 const messagesEl = document.getElementById('messages');
 const chatInput = document.getElementById('chatInput');
@@ -293,6 +293,8 @@ chatInput.addEventListener('keydown', e => {
 document.getElementById('sendBtn').addEventListener('click', send);
 function fill(t) { chatInput.value = t; chatInput.focus(); document.getElementById('agent-section').scrollIntoView({behavior:'smooth'}); }
 
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+
 async function handleUpload(e, type) {
   const file = e.target.files[0];
   if (!file) return;
@@ -301,6 +303,7 @@ async function handleUpload(e, type) {
   statusEl.textContent = '解析中...';
   statusEl.className = 'upload-status';
 
+  // TXT 直接读取
   if (file.name.endsWith('.txt')) {
     textEl.value = await file.text();
     statusEl.textContent = `✓ ${file.name} 已加载`;
@@ -311,11 +314,17 @@ async function handleUpload(e, type) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('type', type);
+
+  // 图片走多模态接口
+  const isImage = IMAGE_TYPES.includes(file.type) || /\.(jpg|jpeg|png|webp)$/i.test(file.name);
+  const endpoint = isImage ? '/upload-image' : '/upload-pdf';
+
   try {
-    const res = await fetch(BACKEND_URL + '/upload-pdf', { method: 'POST', body: formData });
+    const res = await fetch(BACKEND_URL + endpoint, { method: 'POST', body: formData });
     const data = await res.json();
     textEl.value = data.text;
-    statusEl.textContent = `✓ ${file.name}（${data.pages}页）已解析`;
+    const label = isImage ? '图片识别完成' : `${data.pages}页`;
+    statusEl.textContent = `✓ ${file.name}（${label}）已解析`;
     statusEl.className = 'upload-status ok';
   } catch {
     statusEl.textContent = '解析失败，请直接粘贴文本';
