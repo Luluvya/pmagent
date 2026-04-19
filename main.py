@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os, httpx, io
+import os, httpx, io, base64
 from datetime import datetime
 from typing import TypedDict, Annotated
 from pypdf import PdfReader
@@ -18,6 +18,7 @@ SILICONFLOW_KEY = os.getenv("SILICONFLOW_KEY", "")
 API_URL = "https://api.siliconflow.cn/v1/chat/completions"
 EMBED_URL = "https://api.siliconflow.cn/v1/embeddings"
 LLM_MODEL = "deepseek-ai/DeepSeek-V3"
+VL_MODEL = "Qwen/Qwen2-VL-72B-Instruct"
 EMBED_MODEL = "BAAI/bge-m3"
 
 # ── ChromaDB ──────────────────────────────────────────────
@@ -48,6 +49,33 @@ async def llm(system: str, user: str, max_tokens: int = 2000) -> str:
                     {"role": "system", "content": system},
                     {"role": "user", "content": user}
                 ]
+            }
+        )
+        return resp.json()["choices"][0]["message"]["content"]
+
+# ── 多模态图片识别 ─────────────────────────────────────────
+async def extract_text_from_image(image_bytes: bytes, media_type: str) -> str:
+    b64 = base64.b64encode(image_bytes).decode()
+    async with httpx.AsyncClient(timeout=60) as client:
+        resp = await client.post(
+            API_URL,
+            headers={"Authorization": f"Bearer {SILICONFLOW_KEY}", "Content-Type": "application/json"},
+            json={
+                "model": VL_MODEL,
+                "max_tokens": 2000,
+                "messages": [{
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:{media_type};base64,{b64}"}
+                        },
+                        {
+                            "type": "text",
+                            "text": "请提取这张图片中的所有文字内容，保持原有格式和结构，不要添加任何解释。"
+                        }
+                    ]
+                }]
             }
         )
         return resp.json()["choices"][0]["message"]["content"]
@@ -88,7 +116,7 @@ async def init_rag():
 # ── Agent State ───────────────────────────────────────────
 class PMState(TypedDict):
     messages: Annotated[list, add_messages]
-    mode: str  # analyze/match/mock/feedback/case/plan/chat
+    mode: str
     user_input: str
     jd_text: str
     resume_text: str
@@ -281,7 +309,7 @@ async def case_node(state: PMState) -> PMState:
 提炼2-3个最重要的洞察或建议
 
 ## 面试答题建议
-如果这是面试题，给出作答思路和注意事项（时间控制/结构表达/容易踩的坑）
+如果这是面试题，给出作答思路和注意事项
 
 用产品经理的思维方式回答，有深度、有结构、有观点。""",
         f"用户问题：{state['user_input']}\n\n补充背景（JD）：{state.get('jd_text','')[:300]}"
@@ -314,7 +342,7 @@ async def plan_node(state: PMState) -> PMState:
 ## 避坑提示
 3条备考过程中最容易踩的坑
 
-计划要具体可执行，结合候选人实际情况，不要泛泛而谈。""",
+计划要具体可执行，不要泛泛而谈。""",
         f"目标岗位JD：{jd[:500] if jd else '互联网AI产品经理通用岗位'}\n\n候选人简历：{resume[:500] if resume else '未提供'}\n\n用户需求：{state['user_input']}"
     )
     return {**state, "plan_result": result, "has_rag": bool(context)}
@@ -433,6 +461,13 @@ async def upload_pdf(file: UploadFile = File(...), type: str = Form("resume")):
         text += page.extract_text() or ""
     return {"text": text.strip(), "type": type, "pages": len(reader.pages)}
 
+@app.post("/upload-image")
+async def upload_image(file: UploadFile = File(...), type: str = Form("resume")):
+    content = await file.read()
+    media_type = file.content_type or "image/jpeg"
+    text = await extract_text_from_image(content, media_type)
+    return {"text": text.strip(), "type": type}
+
 @app.post("/upload-knowledge")
 async def upload_knowledge(file: UploadFile = File(...)):
     content = (await file.read()).decode("utf-8")
@@ -451,5 +486,6 @@ async def health():
         "status": "ok",
         "knowledge_chunks": pm_collection.count(),
         "kb_version": kb_version["version"],
-        "model": LLM_MODEL
+        "model": LLM_MODEL,
+        "vl_model": VL_MODEL,
     }
