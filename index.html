@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMAgent · AI产品经理面试备考</title>
+<title>PMAgent · 互联网AI产品经理面试备考</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -137,20 +137,33 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
 
 @media(max-width:900px){.hero{grid-template-columns:1fr;padding:48px 20px 36px;gap:28px;}.hero h1{font-size:32px;}.features-grid{grid-template-columns:1fr 1fr;}.agent-section,.features-section{padding:0 20px;}.stats{padding:14px 20px;gap:28px;}footer{padding:16px 20px;}nav{padding:0 20px;}.upload-panels{grid-template-columns:1fr;}}
 @media(max-width:600px){.features-grid{grid-template-columns:1fr;}}
+
+/* ── PM对比卡片 ── */
+.pm-cards-wrap{width:100%;margin:10px 0 4px;}
+.pm-cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px;}
+.pm-comp-card{background:white;border:1px solid var(--border2);border-radius:12px;padding:14px;transition:all 0.2s;}
+.pm-comp-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(83,74,183,0.12);}
+.pm-comp-card .card-name{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px;}
+.pm-comp-card .card-score{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.pm-comp-card .card-highlights{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500;}
+.pm-comp-card .card-detail{font-size:11px;color:var(--text3);line-height:1.6;padding-top:6px;border-top:1px solid var(--border);}
+.pm-cards-summary{font-size:12px;color:var(--text2);line-height:1.7;padding:8px 12px;background:var(--primary-pale);border-radius:8px;border-left:3px solid var(--primary);}
+@media(max-width:700px){.pm-cards-grid{grid-template-columns:1fr;}}
+
 </style>
 </head>
 <body>
 
 <nav>
-  <a class="nav-logo" href="#">🎯 PMAgent<span class="nav-badge">AI产品经理 · 面试备考</span></a>
+  <a class="nav-logo" href="#">🎯 PMAgent<span class="nav-badge">互联网AI产品经理 · 面试备考</span></a>
   <a class="nav-cta" href="#agent-section">开始备考 →</a>
 </nav>
 
 <section class="hero">
   <div>
-    <div class="hero-tag">✦ Multi-Agent · RAG · Multimodal</div>
-    <h1><span>AI产品经理</span><br>面试备考助手</h1>
-    <p>基于 LangGraph Multi-Agent 架构，结合 RAG 知识库与多模态识别，覆盖字节/阿里/腾讯/美团/京东等大厂。支持图片、PDF、文本多格式上传，一站式面试备考。</p>
+    <div class="hero-tag">✦ Multi-Agent · RAG · DeepSeek-V3</div>
+    <h1>互联网AI<br><span>产品经理</span><br>面试备考助手</h1>
+    <p>基于 LangGraph Multi-Agent 架构，结合 RAG 知识库，覆盖字节/阿里/腾讯/美团/京东等大厂。上传 JD 和简历，从 JD 分析到模拟面试一站式备考。</p>
     <div class="hero-btns">
       <a class="btn-primary" href="#agent-section">立即备考 →</a>
       <a class="btn-secondary" href="#features">功能介绍 ↓</a>
@@ -176,23 +189,23 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
 
 <div class="stats">
   <div class="stat"><div class="sv">6 Agents</div><div class="sl">专业决策节点</div></div>
-  <div class="stat"><div class="sv">多模态</div><div class="sl">图片/PDF/文本解析</div></div>
-  <div class="stat"><div class="sv">5大厂</div><div class="sl">字节·阿里·腾讯·美团·京东</div></div>
   <div class="stat"><div class="sv">RAG</div><div class="sl">知识库检索增强</div></div>
+  <div class="stat"><div class="sv">5大厂</div><div class="sl">字节·阿里·腾讯·美团·京东</div></div>
+  <div class="stat"><div class="sv">DeepSeek</div><div class="sl">大模型驱动</div></div>
 </div>
 
 <section class="agent-section" id="agent-section">
   <div class="section-header">
     <h2>AI 面试备考咨询</h2>
-    <p>上传 JD 与简历，开始你的备考之旅</p>
+    <p>上传 JD 与简历，Supervisor Agent 自动识别意图，路由至最合适的专业 Agent</p>
   </div>
 
   <div class="upload-panels">
     <div class="upload-panel">
       <div class="upload-panel-title">📄 职位描述 JD</div>
       <div class="upload-btn">
-        上传 PDF / 图片 / TXT
-        <input type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp" onchange="handleUpload(event,'jd')">
+        上传 PDF / TXT
+        <input type="file" accept=".pdf,.txt" onchange="handleUpload(event,'jd')">
       </div>
       <div class="upload-status" id="jd-status">未上传</div>
       <textarea class="upload-textarea" id="jd-text" placeholder="或直接粘贴 JD 文本内容..."></textarea>
@@ -200,8 +213,8 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="upload-panel">
       <div class="upload-panel-title">👤 个人简历</div>
       <div class="upload-btn">
-        上传 PDF / 图片 / TXT
-        <input type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp" onchange="handleUpload(event,'resume')">
+        上传 PDF / TXT
+        <input type="file" accept=".pdf,.txt" onchange="handleUpload(event,'resume')">
       </div>
       <div class="upload-status" id="resume-status">未上传</div>
       <textarea class="upload-textarea" id="resume-text" placeholder="或直接粘贴简历文本内容..."></textarea>
@@ -212,8 +225,8 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="chat-header">
       <div class="chat-avatar">🎯</div>
       <div class="chat-header-info">
-        <h3>PMAgent · AI产品经理面试备考助手</h3>
-        <p>LangGraph Multi-Agent · RAG知识库 · 多模态解析 · DeepSeek-V3 · Qwen2-VL</p>
+        <h3>PMAgent · 互联网AI产品经理面试备考助手</h3>
+        <p>LangGraph Multi-Agent · RAG知识库 · 6大专业Agent · DeepSeek-V3</p>
       </div>
       <div class="agent-pill">
         <div class="dot-live"></div>
@@ -226,7 +239,7 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
         <div class="msg-avatar agent">🎯</div>
         <div>
           <div class="bubble">
-            您好！我是 <strong>PMAgent</strong>，专注AI产品经理面试备考的助手。<br><br>
+            您好！我是 <strong>PMAgent</strong>，专注互联网AI产品经理面试备考的助手。<br><br>
             我由 <strong>Supervisor Agent</strong> 统一调度，内置6个专业 Agent：<br><br>
             🔍 <strong>JD分析</strong> · 拆解核心能力要求与各大厂面试特点<br>
             📊 <strong>简历匹配</strong> · 评分 + 优化建议 + 面试策略<br>
@@ -234,7 +247,7 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
             📝 <strong>回答点评</strong> · 评分 + STAR法则改进建议<br>
             🧩 <strong>案例拆解</strong> · 产品设计题解析与答题框架<br>
             📅 <strong>备考计划</strong> · 个性化1-2周备考路线<br><br>
-            支持上传 <strong>PDF、图片（截图）、TXT</strong> 格式的JD和简历 ↓
+            请先上传 JD 和简历，或直接点击下方快捷按钮开始 ↓
           </div>
         </div>
       </div>
@@ -266,18 +279,18 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="feat-card"><div class="feat-icon">📊</div><h3>简历匹配诊断</h3><p>评分匹配度、挖掘简历亮点、指出弱项，给出针对该JD的具体简历优化和面试话术建议。</p></div>
     <div class="feat-card"><div class="feat-icon">🎤</div><h3>真实模拟面试</h3><p>模拟大厂面试官追问风格，覆盖自我介绍、产品设计、数据分析、跨团队协作等全维度。</p></div>
     <div class="feat-card"><div class="feat-icon">📝</div><h3>回答专业点评</h3><p>多维度评分，结合 STAR 法则给出重构建议，揭示面试官视角和可能的追问方向。</p></div>
-    <div class="feat-card"><div class="feat-icon">🖼️</div><h3>多模态文件解析</h3><p>支持上传图片格式的简历和JD截图，由 Qwen2-VL 多模态大模型自动识别提取文字内容。</p></div>
+    <div class="feat-card"><div class="feat-icon">🧩</div><h3>产品案例拆解</h3><p>解析产品设计题、竞品分析题，给出分析框架、深度拆解思路和面试答题注意事项。</p></div>
     <div class="feat-card"><div class="feat-icon">📅</div><h3>个性化备考计划</h3><p>结合你的简历和目标JD，制定1-2周每日备考任务，推荐优先练习题和避坑提示。</p></div>
   </div>
 </section>
 
 <footer>
-  <div class="footer-left">🎯 PMAgent · AI产品经理面试备考助手</div>
-  <div class="footer-right">LangGraph · ChromaDB · DeepSeek-V3 · Qwen2-VL · FastAPI · 硅基流动</div>
+  <div class="footer-left">🎯 PMAgent · 互联网AI产品经理面试备考助手</div>
+  <div class="footer-right">LangGraph · ChromaDB · DeepSeek-V3 · FastAPI · 硅基流动</div>
 </footer>
 
 <script>
-const BACKEND_URL = 'https://pmagent-s9xc.onrender.com';
+const BACKEND_URL = 'https://pmagent-s9xc.onrender.com'; // 替换为你的 Render 后端地址
 
 const messagesEl = document.getElementById('messages');
 const chatInput = document.getElementById('chatInput');
@@ -293,8 +306,6 @@ chatInput.addEventListener('keydown', e => {
 document.getElementById('sendBtn').addEventListener('click', send);
 function fill(t) { chatInput.value = t; chatInput.focus(); document.getElementById('agent-section').scrollIntoView({behavior:'smooth'}); }
 
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-
 async function handleUpload(e, type) {
   const file = e.target.files[0];
   if (!file) return;
@@ -303,7 +314,6 @@ async function handleUpload(e, type) {
   statusEl.textContent = '解析中...';
   statusEl.className = 'upload-status';
 
-  // TXT 直接读取
   if (file.name.endsWith('.txt')) {
     textEl.value = await file.text();
     statusEl.textContent = `✓ ${file.name} 已加载`;
@@ -314,17 +324,11 @@ async function handleUpload(e, type) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('type', type);
-
-  // 图片走多模态接口
-  const isImage = IMAGE_TYPES.includes(file.type) || /\.(jpg|jpeg|png|webp)$/i.test(file.name);
-  const endpoint = isImage ? '/upload-image' : '/upload-pdf';
-
   try {
-    const res = await fetch(BACKEND_URL + endpoint, { method: 'POST', body: formData });
+    const res = await fetch(BACKEND_URL + '/upload-pdf', { method: 'POST', body: formData });
     const data = await res.json();
     textEl.value = data.text;
-    const label = isImage ? '图片识别完成' : `${data.pages}页`;
-    statusEl.textContent = `✓ ${file.name}（${label}）已解析`;
+    statusEl.textContent = `✓ ${file.name}（${data.pages}页）已解析`;
     statusEl.className = 'upload-status ok';
   } catch {
     statusEl.textContent = '解析失败，请直接粘贴文本';
@@ -344,15 +348,41 @@ function sanitize(text) {
     .replace(/[\uFE0F\u200D]/g, '');
 }
 
-function addMsg(role, html, badge='', isRag=false) {
+
+function renderPMCards(cards, summary, mode) {
+  const colors = ['#534AB7', '#2563eb', '#16a34a'];
+  let html = '<div class="pm-cards-wrap"><div class="pm-cards-grid">';
+  cards.forEach((c, i) => {
+    html += `<div class="pm-comp-card" style="border-top:3px solid ${colors[i] || '#534AB7'}">
+      <div class="card-name">${c.name || ''}</div>
+      <div class="card-score">${c.score || ''}</div>
+      <div class="card-highlights">${c.highlights || ''}</div>
+      <div class="card-detail">${c.detail || ''}</div>
+    </div>`;
+  });
+  html += '</div>';
+  if (summary) html += `<div class="pm-cards-summary">${summary}</div>`;
+  html += '</div>';
+  return html;
+}
+
+function addMsg(role, html, badge='', isRag=false, cards=[], mode='') {
   const div = document.createElement('div');
   div.className = 'msg ' + role;
   const avatar = role === 'agent' ? '🎯' : '👤';
   const badgeHTML = badge ? `<div><span class="agent-badge2">${badge}</span>${isRag ? '<span class="agent-badge2 rag-tag">📚 RAG</span>' : ''}</div>` : '';
-  div.innerHTML = `<div class="msg-avatar ${role}">${avatar}</div><div>${badgeHTML}<div class="bubble ${role}">${html}</div></div>`;
+
+  let cardHTML = '';
+  if (cards && cards.length > 0) {
+    cardHTML = renderPMCards(cards, html, mode);
+  }
+
+  const contentHTML = cardHTML || `<div class="bubble ${role}">${html}</div>`;
+  div.innerHTML = `<div class="msg-avatar ${role}">${avatar}</div><div style="max-width:88%">${badgeHTML}${contentHTML}</div>`;
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
+
 
 function addThinking() {
   const div = document.createElement('div'); div.className = 'msg agent'; div.id = 'thinking';
@@ -392,7 +422,7 @@ async function send() {
 
     thinkEl.remove();
     document.getElementById('agentLabel').textContent = data.agent || 'Agent';
-    addMsg('agent', sanitize(data.response), data.agent, data.has_rag);
+    addMsg('agent', sanitize(data.response), data.agent, data.has_rag, data.cards || [], data.mode || '');
 
   } catch(e) {
     thinkEl.remove();
