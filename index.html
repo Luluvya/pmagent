@@ -204,8 +204,8 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="upload-panel">
       <div class="upload-panel-title">📄 职位描述 JD</div>
       <div class="upload-btn">
-        上传 PDF / TXT
-        <input type="file" accept=".pdf,.txt" onchange="handleUpload(event,'jd')">
+        上传 PDF / 图片 / TXT
+        <input type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp" onchange="handleUpload(event,'jd')">
       </div>
       <div class="upload-status" id="jd-status">未上传</div>
       <textarea class="upload-textarea" id="jd-text" placeholder="或直接粘贴 JD 文本内容..."></textarea>
@@ -213,8 +213,8 @@ footer{background:white;border-top:1px solid var(--border);padding:20px 48px;mar
     <div class="upload-panel">
       <div class="upload-panel-title">👤 个人简历</div>
       <div class="upload-btn">
-        上传 PDF / TXT
-        <input type="file" accept=".pdf,.txt" onchange="handleUpload(event,'resume')">
+        上传 PDF / 图片 / TXT
+        <input type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp" onchange="handleUpload(event,'resume')">
       </div>
       <div class="upload-status" id="resume-status">未上传</div>
       <textarea class="upload-textarea" id="resume-text" placeholder="或直接粘贴简历文本内容..."></textarea>
@@ -324,11 +324,14 @@ async function handleUpload(e, type) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('type', type);
+  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(file.name);
+  const endpoint = isImage ? '/upload-image' : '/upload-pdf';
   try {
-    const res = await fetch(BACKEND_URL + '/upload-pdf', { method: 'POST', body: formData });
+    const res = await fetch(BACKEND_URL + endpoint, { method: 'POST', body: formData });
     const data = await res.json();
     textEl.value = data.text;
-    statusEl.textContent = `✓ ${file.name}（${data.pages}页）已解析`;
+    const label = isImage ? '图片识别完成' : `${data.pages}页`;
+    statusEl.textContent = `✓ ${file.name}（${label}）已解析`;
     statusEl.className = 'upload-status ok';
   } catch {
     statusEl.textContent = '解析失败，请直接粘贴文本';
