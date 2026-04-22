@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os, httpx, io, base64
+import os, httpx, io, base64, json
 from datetime import datetime
 from typing import TypedDict, Annotated
 from pypdf import PdfReader
@@ -66,14 +66,8 @@ async def extract_text_from_image(image_bytes: bytes, media_type: str) -> str:
                 "messages": [{
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:{media_type};base64,{b64}"}
-                        },
-                        {
-                            "type": "text",
-                            "text": "请提取这张图片中的所有文字内容，保持原有格式和结构，不要添加任何解释。"
-                        }
+                        {"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{b64}"}},
+                        {"type": "text", "text": "请提取这张图片中的所有文字内容，保持原有格式和结构，不要添加任何解释。"}
                     ]
                 }]
             }
@@ -123,12 +117,15 @@ class PMState(TypedDict):
     history: list
     jd_analysis_result: str
     match_result: str
+    match_cards: list
     mock_result: str
     feedback_result: str
+    feedback_cards: list
     case_result: str
     plan_result: str
     chat_result: str
     final_response: str
+    final_cards: list
     has_rag: bool
 
 # ── Supervisor ────────────────────────────────────────────
@@ -199,34 +196,62 @@ async def match_node(state: PMState) -> PMState:
     jd = state.get("jd_text", "")
     resume = state.get("resume_text", "")
     if not jd or not resume:
-        return {**state, "match_result": "请提供JD和简历内容后再进行匹配分析。", "has_rag": False}
+        return {**state, "match_result": "请提供JD和简历内容后再进行匹配分析。", "match_cards": [], "has_rag": False}
     context = await retrieve("简历匹配 岗位能力 面试优势 简历优化建议")
-    result = await llm(
+
+    # 结构化卡片输出
+    card_raw = await llm(
         f"""你是专业的求职顾问，擅长简历与岗位匹配分析。
 {'参考知识库：\n' + context if context else ''}
 
-请对简历与JD进行深度匹配分析，输出格式如下：
-
-## 综合匹配度
-评分：X/10分
-核心判断：一句话说明整体匹配情况
-
-## 优势亮点（强匹配项）
-列出简历中与JD高度契合的3-5个点，并说明面试中如何突出展示
-
-## 待补强项（弱匹配项）
-列出JD要求但简历较弱的2-3个方向，给出具体补救建议
-
-## 简历优化建议
-针对该JD，给出3条具体的简历修改建议（哪里改、怎么改、改成什么样）
-
-## 面试策略建议
-基于匹配情况，给出面试准备的重点方向和话术建议
-
-用专业、直接的中文回答，不要客套。""",
-        f"JD内容：\n{jd}\n\n简历内容：\n{resume}"
+请对简历与JD进行匹配分析，严格按以下JSON格式返回，不要其他文字：
+{{
+  "cards": [
+    {{
+      "name": "综合匹配度",
+      "score": "X/10",
+      "highlights": "核心优势一句话",
+      "detail": "匹配情况说明"
+    }},
+    {{
+      "name": "优势亮点",
+      "score": "强项",
+      "highlights": "最突出的2个点",
+      "detail": "如何在面试中展示"
+    }},
+    {{
+      "name": "待补强项",
+      "score": "待提升",
+      "highlights": "最需改进的1-2个方向",
+      "detail": "具体补救建议"
+    }}
+  ],
+  "summary": "整体匹配建议和面试策略，3句话"
+}}""",
+        f"JD内容：\n{jd}\n\n简历内容：\n{resume}",
+        max_tokens=1000
     )
-    return {**state, "match_result": result, "has_rag": bool(context)}
+
+    cards = []
+    summary = ""
+    try:
+        clean = card_raw.strip().replace("```json", "").replace("```", "").strip()
+        parsed = json.loads(clean)
+        cards = parsed.get("cards", [])
+        summary = parsed.get("summary", "")
+    except Exception:
+        pass
+
+    if not cards:
+        # 降级到普通文本
+        result = await llm(
+            f"""你是专业的求职顾问。{'参考知识库：\n' + context if context else ''}
+请对简历与JD进行深度匹配分析，包含匹配度评分、优势亮点、待补强项、简历优化建议、面试策略。""",
+            f"JD内容：\n{jd}\n\n简历内容：\n{resume}"
+        )
+        return {**state, "match_result": result, "match_cards": [], "has_rag": bool(context)}
+
+    return {**state, "match_result": summary, "match_cards": cards, "has_rag": bool(context)}
 
 # ── Mock Interview ────────────────────────────────────────
 async def mock_node(state: PMState) -> PMState:
@@ -261,31 +286,59 @@ async def feedback_node(state: PMState) -> PMState:
         for m in state.get("history", [])[-6:]
     ])
     context = await retrieve(state["user_input"] + " STAR法则 回答框架 面试技巧 评分标准")
-    result = await llm(
+
+    # 结构化卡片输出
+    card_raw = await llm(
         f"""你是资深互联网PM面试教练，擅长精准点评候选人回答。
 {'参考知识库：\n' + context if context else ''}
 
-请对候选人的回答进行全面点评，输出格式：
-
-## 回答评分
-结构清晰度：X/10 · 内容深度：X/10 · 亮点展示：X/10
-
-## 做得好的地方
-具体指出1-2个亮点
-
-## 需要改进的地方
-具体指出2-3个问题，说明为什么这样回答不够好
-
-## STAR法则重构建议
-用STAR框架给出更好的回答结构（给方向，不要代写完整答案）
-
-## 面试官视角
-这个回答在面试官眼里的印象，以及可能的追问方向
-
-专业严格，帮候选人真正提升，不要客套鼓励。""",
-        f"对话历史：\n{history_str}\n\n候选人最新回答：{state['user_input']}"
+请对候选人的回答进行评分，严格按以下JSON格式返回，不要其他文字：
+{{
+  "cards": [
+    {{
+      "name": "结构清晰度",
+      "score": "X/10",
+      "highlights": "结构亮点一句话",
+      "detail": "具体评价和改进方向"
+    }},
+    {{
+      "name": "内容深度",
+      "score": "X/10",
+      "highlights": "内容亮点一句话",
+      "detail": "具体评价和改进方向"
+    }},
+    {{
+      "name": "亮点展示",
+      "score": "X/10",
+      "highlights": "亮点展示情况一句话",
+      "detail": "如何更好地展示个人优势"
+    }}
+  ],
+  "summary": "STAR法则重构建议和面试官视角，3-4句话"
+}}""",
+        f"对话历史：\n{history_str}\n\n候选人最新回答：{state['user_input']}",
+        max_tokens=1000
     )
-    return {**state, "feedback_result": result, "has_rag": bool(context)}
+
+    cards = []
+    summary = ""
+    try:
+        clean = card_raw.strip().replace("```json", "").replace("```", "").strip()
+        parsed = json.loads(clean)
+        cards = parsed.get("cards", [])
+        summary = parsed.get("summary", "")
+    except Exception:
+        pass
+
+    if not cards:
+        result = await llm(
+            f"""你是资深互联网PM面试教练。{'参考知识库：\n' + context if context else ''}
+请对候选人回答进行全面点评，包含评分、亮点、改进建议、STAR法则重构建议、面试官视角。""",
+            f"对话历史：\n{history_str}\n\n候选人最新回答：{state['user_input']}"
+        )
+        return {**state, "feedback_result": result, "feedback_cards": [], "has_rag": bool(context)}
+
+    return {**state, "feedback_result": summary, "feedback_cards": cards, "has_rag": bool(context)}
 
 # ── Case Analysis Agent ───────────────────────────────────
 async def case_node(state: PMState) -> PMState:
@@ -375,7 +428,8 @@ async def synthesis_node(state: PMState) -> PMState:
         state.get("chat_result") or
         "抱歉，我暂时无法回答这个问题。"
     )
-    return {**state, "final_response": response}
+    cards = state.get("match_cards") or state.get("feedback_cards") or []
+    return {**state, "final_response": response, "final_cards": cards}
 
 # ── Build Graph ───────────────────────────────────────────
 def build_graph():
@@ -435,18 +489,22 @@ async def chat(req: ChatRequest):
         "history": req.history,
         "jd_analysis_result": "",
         "match_result": "",
+        "match_cards": [],
         "mock_result": "",
         "feedback_result": "",
+        "feedback_cards": [],
         "case_result": "",
         "plan_result": "",
         "chat_result": "",
         "final_response": "",
+        "final_cards": [],
         "has_rag": False,
     }
     result = await graph.ainvoke(state)
     mode = result.get("mode", "chat")
     return {
         "response": result.get("final_response", ""),
+        "cards": result.get("final_cards", []),
         "mode": mode,
         "agent": MODE_LABELS.get(mode, "🤖"),
         "has_rag": result.get("has_rag", False),
